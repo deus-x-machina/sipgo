@@ -64,6 +64,12 @@ func (s *DialogServer) ReadInvite(req *sip.Request, tx sip.ServerTransaction) (*
 		return nil, ErrDialogInviteNoContact
 	}
 
+	_, ok := req.To().Params["tag"]
+	if ok {
+		// we already have a to tag, possibly re-INVITE
+		return s.matchDialogRequest(req)
+	}
+
 	// Prebuild already to tag for response as it must be same for all responds
 	// NewResponseFromRequest will skip this for all 100
 	uuid, err := uuid.NewV4()
